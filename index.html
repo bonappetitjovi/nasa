@@ -480,30 +480,90 @@
             `).join('');
         }
 
-        // Form submission to Google Apps Script
-        document.getElementById('sightingForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Replace the form submission part in your HTML file with this:
+
+// Form submission to Google Apps Script
+document.getElementById('sightingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const witnessName = document.getElementById('witnessName').value;
+    const contactNumber = document.getElementById('contactNumber').value;
+    const evidenceFile = document.getElementById('evidenceFile').files[0];
+    
+    if (witnessName && evidenceFile) {
+        // Show loading state
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '🔄 Uploading to Database...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Convert file to base64
+            const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(evidenceFile);
+            });
             
-            const witnessName = document.getElementById('witnessName').value;
-            const contactNumber = document.getElementById('contactNumber').value;
-            const evidenceFile = document.getElementById('evidenceFile').files[0];
+            // YOUR DEPLOYED SCRIPT URL HERE - REPLACE THIS!
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbx_m045fWAn7XCJjiDHPwINJ7BN21GrwXWnQizjBkAOPAXJHWpfVkZx4zfVZntUzVVL/exec'; // ⚠️ REPLACE WITH YOUR REAL URL
             
-            if (witnessName && evidenceFile) {
-                // Show loading state
-                const submitBtn = document.querySelector('.submit-btn');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '🔄 Uploading to Database...';
-                submitBtn.disabled = true;
+            if (scriptUrl === 'https://script.google.com/macros/s/AKfycbx_m045fWAn7XCJjiDHPwINJ7BN21GrwXWnQizjBkAOPAXJHWpfVkZx4zfVZntUzVVL/exec') {
+                // Fallback to demo mode if URL not configured
+                const caseId = Math.random().toString(36).substr(2, 9).toUpperCase();
+                document.getElementById('caseId').textContent = caseId;
                 
+                // Store in memory for demo
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const submission = {
+                        caseId: caseId,
+                        name: witnessName,
+                        number: contactNumber,
+                        photo: e.target.result,
+                        timestamp: new Date().toLocaleString()
+                    };
+                    submissions.unshift(submission);
+                    displaySubmissions();
+                };
+                reader.readAsDataURL(evidenceFile);
+                
+                document.getElementById('successMessage').style.display = 'block';
+                alert('⚠️ Demo Mode: Configure your Google Script URL for real storage!');
+            } else {
+                // Try direct POST first
                 try {
-                    // Convert file to base64
-                    const base64 = await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result.split(',')[1]);
-                        reader.readAsDataURL(evidenceFile);
+                    const response = await fetch(scriptUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            witness_name: witnessName,
+                            contact_number: contactNumber || 'Not provided',
+                            filename: evidenceFile.name,
+                            filetype: evidenceFile.type,
+                            filedata: base64,
+                            timestamp: new Date().toISOString()
+                        })
                     });
                     
-                    // Prepare data for Google Script
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            document.getElementById('caseId').textContent = result.caseId;
+                            document.getElementById('successMessage').style.display = 'block';
+                        } else {
+                            throw new Error('Script returned error: ' + result.error);
+                        }
+                    } else {
+                        throw new Error('HTTP error: ' + response.status);
+                    }
+                } catch (fetchError) {
+                    console.log('Direct fetch failed, trying form submission method...', fetchError);
+                    
+                    // Fallback: Use form submission method (bypasses CORS)
                     const formData = {
                         witness_name: witnessName,
                         contact_number: contactNumber || 'Not provided',
@@ -513,68 +573,62 @@
                         timestamp: new Date().toISOString()
                     };
                     
-                    // Send to Google Apps Script (replace with your script URL)
-                    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwAnQ-RYNKs8xCoVSmrn3KlKKei_lUefCF2HI5SIUeKNJPdRBoKcHtzKoG_gK4M66wW/exec'; // Replace this with your deployed script URL
+                    // Create hidden form for CORS-free submission
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = scriptUrl;
+                    form.target = 'hidden-iframe';
+                    form.style.display = 'none';
                     
-                    if (scriptUrl === 'https://script.google.com/macros/s/AKfycbwAnQ-RYNKs8xCoVSmrn3KlKKei_lUefCF2HI5SIUeKNJPdRBoKcHtzKoG_gK4M66wW/exec') {
-                        // If not configured yet, show in-browser storage
-                        const caseId = Math.random().toString(36).substr(2, 9).toUpperCase();
-                        document.getElementById('caseId').textContent = caseId;
-                        
-                        // Store in memory for demo
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const submission = {
-                                caseId: caseId,
-                                name: witnessName,
-                                number: contactNumber,
-                                photo: e.target.result,
-                                timestamp: new Date().toLocaleString()
-                            };
-                            submissions.unshift(submission);
-                            displaySubmissions();
-                        };
-                        reader.readAsDataURL(evidenceFile);
-                        
-                        document.getElementById('successMessage').style.display = 'block';
-                    } else {
-                        // Send to Google Script
-                        const response = await fetch(scriptUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(formData)
-                        });
-                        
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            document.getElementById('caseId').textContent = result.caseId;
-                            document.getElementById('successMessage').style.display = 'block';
-                        } else {
-                            throw new Error('Submission failed');
-                        }
+                    // Create hidden iframe
+                    const iframe = document.createElement('iframe');
+                    iframe.name = 'hidden-iframe';
+                    iframe.style.display = 'none';
+                    document.body.appendChild(iframe);
+                    
+                    // Add form data as hidden inputs
+                    for (const [key, value] of Object.entries(formData)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
                     }
                     
-                    // Reset form
-                    this.reset();
-                    document.getElementById('previewContainer').innerHTML = '';
-                    document.querySelector('.upload-text').innerHTML = `
-                        Click to upload your sighting photo<br>
-                        <small>JPG, PNG, GIF accepted</small>
-                    `;
+                    document.body.appendChild(form);
+                    form.submit();
                     
-                } catch (error) {
-                    console.error('Submission error:', error);
-                    alert('❌ Upload failed. Please try again.');
-                } finally {
-                    // Restore button
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
+                    // Clean up after delay
+                    setTimeout(() => {
+                        document.body.removeChild(form);
+                        document.body.removeChild(iframe);
+                    }, 2000);
+                    
+                    // Generate case ID locally since we can't get response from form submission
+                    const caseId = Math.random().toString(36).substr(2, 9).toUpperCase();
+                    document.getElementById('caseId').textContent = caseId;
+                    document.getElementById('successMessage').style.display = 'block';
                 }
             }
-        });
+            
+            // Reset form
+            this.reset();
+            document.getElementById('previewContainer').innerHTML = '';
+            document.querySelector('.upload-text').innerHTML = `
+                Click to upload your sighting photo<br>
+                <small>JPG, PNG, GIF accepted</small>
+            `;
+            
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('⌚ Upload failed. Please try again. Error: ' + error.message);
+        } finally {
+            // Restore button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+});
 
         // Initialize stars when page loads
         createStars();
