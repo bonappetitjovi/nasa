@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extraterrestrial Evidence Hub - Report Your Sightings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0d2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #00ff88;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .ufo-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px #00ff88;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #88ffcc;
+            text-shadow: 0 0 10px #88ffcc;
+            margin-bottom: 30px;
+        }
+
+        .form-container {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #88ffcc;
+            text-shadow: 0 0 5px #88ffcc;
+        }
+
+        .required {
+            color: #ff4444;
+            text-shadow: 0 0 5px #ff4444;
+        }
+
+        input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            color: #00ff88;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="tel"]:focus {
+            outline: none;
+            border-color: #88ffcc;
+            box-shadow: 0 0 15px rgba(136, 255, 204, 0.5);
+            transform: scale(1.02);
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 3px dashed #00ff88;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .file-input:hover {
+            border-color: #88ffcc;
+            background: rgba(0, 255, 136, 0.1);
+            transform: scale(1.02);
+        }
+
+        .file-input input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #88ffcc;
+            margin-top: 10px;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(45deg, #00ff88, #88ffcc);
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            margin-top: 30px;
+            display: block;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .submissions-container {
+            margin-top: 40px;
+            display: none;
+        }
+
+        .submissions-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .submissions-header h2 {
+            color: #00ff88;
+            text-shadow: 0 0 15px #00ff88;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .submission-card {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .case-id {
+            background: linear-gradient(45deg, #ff4444, #ff8844);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .witness-info {
+            margin-bottom: 15px;
+        }
+
+        .witness-name {
+            font-size: 1.3rem;
+            color: #88ffcc;
+            text-shadow: 0 0 10px #88ffcc;
+            margin-bottom: 5px;
+        }
+
+        .witness-number {
+            color: #aaffdd;
+            font-size: 1rem;
+        }
+
+        .evidence-photo {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .evidence-photo img {
+            max-width: 100%;
+            max-height: 400px;
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.5);
+        }
+
+        .timestamp {
+            color: #66ccaa;
+            font-size: 0.9rem;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .setup-instructions {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 136, 0.1);
+            border: 2px solid #ffff88;
+            border-radius: 15px;
+        }
+
+        .setup-instructions h3 {
+            color: #ffff88;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .setup-instructions p {
+            color: #ffffcc;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="ufo-icon">🛸</div>
+            <h1>EXTRATERRESTRIAL EVIDENCE HUB</h1>
+            <p class="subtitle">Report Your Strange Sightings & Alien Encounters</p>
+            <p style="color: #66ccaa; font-size: 0.9rem;">⚡ Classified Database - Top Secret Clearance ⚡</p>
+        </div>
+
+        <div class="form-container">
+            <form id="sightingForm">
+                <div class="form-group">
+                    <label for="witnessName">👤 Witness Name <span class="required">*</span></label>
+                    <input type="text" id="witnessName" name="witnessName" required placeholder="Enter your full name...">
+                </div>
+
+                <div class="form-group">
+                    <label for="contactNumber">📞 Contact Number (Optional)</label>
+                    <input type="tel" id="contactNumber" name="contactNumber" placeholder="Your phone number for follow-up...">
+                </div>
+
+                <div class="form-group">
+                    <label for="evidence">📸 Upload Evidence <span class="required">*</span></label>
+                    <div class="file-upload">
+                        <label for="evidenceFile" class="file-input">
+                            <input type="file" id="evidenceFile" name="evidenceFile" accept="image/*" required>
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-text">Click to upload your sighting photo<br><small>JPG, PNG, GIF accepted</small></div>
+                        </label>
+                    </div>
+                    <div class="preview-container" id="previewContainer"></div>
+                </div>
+
+                <button type="submit" class="submit-btn">🚀 Submit Evidence 🚀</button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                <h3>✅ SIGHTING RECORDED SUCCESSFULLY ✅</h3>
+                <p>Your evidence has been uploaded to our classified database.<br>
+                Agent contact may occur within 48-72 hours.<br>
+                <strong>Case ID: #ET-<span id="caseId"></span></strong></p>
+            </div>
+
+            <div class="setup-instructions">
+                <h3>🔧 SETUP REQUIRED FOR DATA STORAGE 🔧</h3>
+                <p>
+                    <strong>To store submissions permanently and handle 1000+ responses:</strong><br><br>
+                    
+                    1. <strong>Go to</strong> <a href="https://script.google.com" style="color: #88ffcc;" target="_blank">script.google.com</a><br>
+                    2. <strong>Create a new project</strong><br>
+                    3. <strong>Replace the default code</strong> with the Google Apps Script I provided<br>
+                    4. <strong>Deploy as web app</strong> and copy the URL<br>
+                    5. <strong>Replace "YOUR_SCRIPT_URL"</strong> in the code with your URL<br><br>
+                    
+                    <strong>This will:</strong><br>
+                    • Store all data in Google Sheets (unlimited)<br>
+                    • Upload photos to Google Drive (15GB free)<br>
+                    • Handle thousands of submissions<br>
+                    • Give you a spreadsheet to view/export all data
+                </p>
+            </div>
+        </div>
+
+        <!-- Submissions Display -->
+        <div class="submissions-container" id="submissionsContainer">
+            <div class="submissions-header">
+                <h2>🛸 CLASSIFIED EVIDENCE DATABASE 🛸</h2>
+                <p style="color: #88ffcc;">Recent Extraterrestrial Encounters</p>
+            </div>
+            <div id="submissionsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Store submissions in memory
+        let submissions = [];
+
+        // Create animated stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // File upload preview
+        document.getElementById('evidenceFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const previewContainer = document.getElementById('previewContainer');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.innerHTML = `
+                        <p style="color: #88ffcc; margin-bottom: 10px;">📡 Evidence Preview:</p>
+                        <img src="${e.target.result}" alt="Evidence Preview" class="preview-image">
+                    `;
+                };
+                reader.readAsDataURL(file);
+                
+                // Update upload text
+                document.querySelector('.upload-text').innerHTML = `
+                    ✅ File Selected: ${file.name}<br>
+                    <small>Click to change file</small>
+                `;
+            }
+        });
+
+        // Display all submissions
+        function displaySubmissions() {
+            const submissionsContainer = document.getElementById('submissionsContainer');
+            const submissionsList = document.getElementById('submissionsList');
+            
+            if (submissions.length === 0) {
+                submissionsContainer.style.display = 'none';
+                return;
+            }
+            
+            submissionsContainer.style.display = 'block';
+            
+            submissionsList.innerHTML = submissions.map((submission, index) => `
+                <div class="submission-card">
+                    <div class="submission-header">
+                        <div class="case-id">Case #ET-${submission.caseId}</div>
+                    </div>
+                    <div class="witness-info">
+                        <div class="witness-name">👤 Witness: ${submission.name}</div>
+                        <div class="witness-number">📞 Contact: ${submission.number || 'Not provided'}</div>
+                    </div>
+                    <div class="evidence-photo">
+                        <p style="color: #88ffcc; margin-bottom: 10px;">📸 Evidence Photo:</p>
+                        <img src="${submission.photo}" alt="Alien Sighting Evidence" />
+                    </div>
+                    <div class="timestamp">⏰ Submitted: ${submission.timestamp}</div>
+                </div>
+            `).join('');
+        }
+
+        // Form submission to Google Apps Script
+        document.getElementById('sightingForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const witnessName = document.getElementById('witnessName').value;
+            const contactNumber = document.getElementById('contactNumber').value;
+            const evidenceFile = document.getElementById('evidenceFile').files[0];
+            
+            if (witnessName && evidenceFile) {
+                // Show loading state
+                const submitBtn = document.querySelector('.submit-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '🔄 Uploading to Database...';
+                submitBtn.disabled = true;
+                
+                try {
+                    // Convert file to base64
+                    const base64 = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                        reader.readAsDataURL(evidenceFile);
+                    });
+                    
+                    // Prepare data for Google Script
+                    const formData = {
+                        witness_name: witnessName,
+                        contact_number: contactNumber || 'Not provided',
+                        filename: evidenceFile.name,
+                        filetype: evidenceFile.type,
+                        filedata: base64,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Send to Google Apps Script (replace with your script URL)
+                    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwAnQ-RYNKs8xCoVSmrn3KlKKei_lUefCF2HI5SIUeKNJPdRBoKcHtzKoG_gK4M66wW/exec'; // Replace this with your deployed script URL
+                    
+                    if (scriptUrl === 'https://script.google.com/macros/s/AKfycbwAnQ-RYNKs8xCoVSmrn3KlKKei_lUefCF2HI5SIUeKNJPdRBoKcHtzKoG_gK4M66wW/exec') {
+                        // If not configured yet, show in-browser storage
+                        const caseId = Math.random().toString(36).substr(2, 9).toUpperCase();
+                        document.getElementById('caseId').textContent = caseId;
+                        
+                        // Store in memory for demo
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const submission = {
+                                caseId: caseId,
+                                name: witnessName,
+                                number: contactNumber,
+                                photo: e.target.result,
+                                timestamp: new Date().toLocaleString()
+                            };
+                            submissions.unshift(submission);
+                            displaySubmissions();
+                        };
+                        reader.readAsDataURL(evidenceFile);
+                        
+                        document.getElementById('successMessage').style.display = 'block';
+                    } else {
+                        // Send to Google Script
+                        const response = await fetch(scriptUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(formData)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            document.getElementById('caseId').textContent = result.caseId;
+                            document.getElementById('successMessage').style.display = 'block';
+                        } else {
+                            throw new Error('Submission failed');
+                        }
+                    }
+                    
+                    // Reset form
+                    this.reset();
+                    document.getElementById('previewContainer').innerHTML = '';
+                    document.querySelector('.upload-text').innerHTML = `
+                        Click to upload your sighting photo<br>
+                        <small>JPG, PNG, GIF accepted</small>
+                    `;
+                    
+                } catch (error) {
+                    console.error('Submission error:', error);
+                    alert('❌ Upload failed. Please try again.');
+                } finally {
+                    // Restore button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        });
+
+        // Initialize stars when page loads
+        createStars();
+    </script>
+</body>
+</html>
